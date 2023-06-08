@@ -1,0 +1,37 @@
+mode.production: true
+
+app.name: "hammer"
+
+mysql:
+  enabled: true
+  user: "${mysqlusername}"
+  password: "${mysqlpassword}"
+  database: "${app.name}"
+  host: "${mysqladdr}"
+  port: 3306
+
+redis:
+  enabled: true
+  address: "redis"
+  port: 6379
+  database: 0
+
+server:
+  host: "0.0.0.0"
+  port: 8085
+  gracefulShutdownTimeSec: 5
+
+consul:
+  enabled: true
+  consulAddress: consul:8500
+
+tracing.propagation.keys:
+  - id
+  - userno
+  - username
+  - role
+  - roleno
+
+logging.rolling.file: "/usr/src/logs/${app.name}.log"
+
+goauth.report.enabled: true
