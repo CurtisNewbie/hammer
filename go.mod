@@ -2,7 +2,7 @@ module github.com/curtisnewbie/hammer
 
 go 1.18
 
-require github.com/curtisnewbie/gocommon v0.0.0-20230608161956-7acecd7f6b5c
+require github.com/curtisnewbie/gocommon v0.0.0-20230609021453-656b4206d788
 
 require (
 	github.com/armon/go-metrics v0.4.0 // indirect
