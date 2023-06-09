@@ -3,14 +3,14 @@ mode.production: false
 app.name: "hammer"
 
 mysql:
-  enabled: true
+  enabled: false
   user: root
   database: "${app.name}"
   host: localhost
   port: 3306
 
 redis:
-  enabled: true
+  enabled: false
   address: localhost
   port: 6379
   database: 0
@@ -30,5 +30,11 @@ tracing.propagation.keys:
   - username
   - role
   - roleno
+
+rabbitmq:
+  enabled: true
+  username: guest
+  password: guest
+  vhost: "/"
 
 goauth.report.enabled: false
