@@ -42,22 +42,24 @@ func ListenCompressImageEvent(evt CompressImageEvent) error {
 	}
 
 	// temp path for the downloaded file
-	tmpFile := "/tmp/" + common.RandNum(20)
+	downloaded := "/tmp/" + common.RandNum(20)
 
 	// download the file from mini-fstore
-	if e := DownloadFstoreFile(c, tkn, tmpFile); e != nil {
+	if e := DownloadFstoreFile(c, tkn, downloaded); e != nil {
 		c.Log.Errorf("Failed to DownloadFstoreFile, %v", e)
 		return fmt.Errorf("failed to download fstore file, %v", e)
 	}
-	c.Log.Infof("File downloaded to %v", tmpFile)
-	defer os.Remove(tmpFile)
+	c.Log.Infof("File downloaded to %v", downloaded)
+	defer os.Remove(downloaded)
 
 	// compress the image
-	compressed := tmpFile + "_compressed"
-	if e := CompressImage(tmpFile, compressed); e != nil {
+	compressed := downloaded + "_compressed"
+	if e := CompressImage(downloaded, compressed); e != nil {
 		c.Log.Errorf("Failed to compress image, %v", e)
 		return nil // if the compression failed, there is no need to retry
 	}
+	defer os.Remove(compressed)
+	c.Log.Infof("Image %v compressed to %v", evt.FileKey, compressed)
 
 	// upload the image back to mini-fstore
 	uploadFileId, e := UploadFstoreFile(c, evt.FileKey+"_thumbnail", compressed)

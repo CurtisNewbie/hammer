@@ -84,7 +84,7 @@ func UploadFstoreFile(c common.ExecContext, filename string, file string) (strin
 	}
 	defer f.Close()
 
-	r := client.NewDynTClient(c, "/file/raw", "fstore").
+	r := client.NewDynTClient(c, "/file", "fstore").
 		EnableTracing().
 		AddHeaders(map[string]string{"filename": filename}).
 		Put(f)
