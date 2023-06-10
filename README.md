@@ -25,6 +25,7 @@ sequenceDiagram
     v->>v:check if it's an image
     v--)h:(MQ) trigger image compression
     h->>m:download original file
+    m->>h:original image
     h->>h:compress image
     h->>m:upload compressed image
     h--)v:(MQ) file_id of the compressed image
