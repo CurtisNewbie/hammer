@@ -19,13 +19,13 @@ sequenceDiagram
 
     b->>m:Upload file
     m->>b:return file_id (the fake one)
-    b->>v:Create file recrod (with the file_id)
-    v->>m:exchange fake file_id with the real file_id
+    b->>v:Create file recrod
+    v->>m:get the real file_id
     m->>v:actual file info
-    v->>v:check whether the file is potentially an image
-    v-->h:(MQ) notify which image needs to be compressed
+    v->>v:check if it's an image
+    v--)h:(MQ) trigger image compression
     h->>m:download original file
     h->>h:compress image
     h->>m:upload compressed image
-    h-->v:(MQ) notify the file_id of the compressed image
+    h--)v:(MQ) file_id of the compressed image
 ```
