@@ -19,15 +19,8 @@ type CompressImageEvent struct {
 }
 
 func PrepareServer(c common.ExecContext) {
-	if e := bus.DeclareEventBus(comprImgProcBus); e != nil {
-		c.Log.Fatalf("failed to declare event bus, %v", e)
-	}
-
-	if e := bus.DeclareEventBus(comprImgNotifyBus); e != nil {
-		c.Log.Fatalf("failed to declare event bus, %v", e)
-	}
-
-	bus.SubscribeEventBus(comprImgProcBus, 2, ListenCompressImageEvent)
+	bus.DeclareEventBus(comprImgNotifyBus)
+	bus.SubscribeEventBus(comprImgProcBus, 1, ListenCompressImageEvent)
 }
 
 func ListenCompressImageEvent(evt CompressImageEvent) error {
@@ -38,8 +31,9 @@ func ListenCompressImageEvent(evt CompressImageEvent) error {
 	tkn, e := GetFstoreTmpToken(c, evt.FileId)
 	if e != nil {
 		c.Log.Errorf("Failed to GetFstoreTmpToken, %v", e)
-		return fmt.Errorf("failed to generate fstore temp token, %v", e)
+		return nil
 	}
+	c.Log.Infof("tkn: %v", tkn)
 
 	// temp path for the downloaded file
 	downloaded := "/tmp/" + common.RandNum(20)
@@ -47,7 +41,7 @@ func ListenCompressImageEvent(evt CompressImageEvent) error {
 	// download the file from mini-fstore
 	if e := DownloadFstoreFile(c, tkn, downloaded); e != nil {
 		c.Log.Errorf("Failed to DownloadFstoreFile, %v", e)
-		return fmt.Errorf("failed to download fstore file, %v", e)
+		return nil
 	}
 	c.Log.Infof("File downloaded to %v", downloaded)
 	defer os.Remove(downloaded)
@@ -78,7 +72,7 @@ func ListenCompressImageEvent(evt CompressImageEvent) error {
 	// record exists, dispatch the event to the oubound event bus (notify vfm about the fileId of the thumbnail)
 	if thumbnailFile.Id > 0 {
 		outboundEvent := CompressImageEvent{FileKey: evt.FileKey, FileId: thumbnailFile.FileId}
-		bus.SendToEventBus(outboundEvent, comprImgNotifyBus)
+		bus.SendToEventBus(c, outboundEvent, comprImgNotifyBus)
 	}
 	return nil
 }

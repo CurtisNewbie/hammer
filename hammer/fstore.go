@@ -35,7 +35,6 @@ type FstoreFile struct {
 func GetFstoreTmpToken(c common.ExecContext, fileId string) (string /* tmpToken */, error) {
 	r := client.NewDynTClient(c, "/file/key", "fstore").
 		EnableTracing().
-		EnableRequestLog().
 		Get(map[string][]string{"fileId": {fileId}})
 	if r.Err != nil {
 		return "", r.Err

@@ -11,5 +11,5 @@ import (
 func main() {
 	c := common.EmptyExecContext()
 	hammer.PrepareServer(c)
-	server.DefaultBootstrapServer(os.Args, c)
+	server.BootstrapServer(os.Args)
 }

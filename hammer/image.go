@@ -2,7 +2,6 @@ package hammer
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/h2non/bimg"
 )
@@ -11,7 +10,7 @@ import (
 func CompressImage(file string, output string) error {
 	buffer, err := bimg.Read(file)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		return err
 	}
 
 	thumbnail, err := bimg.NewImage(buffer).Thumbnail(256)
