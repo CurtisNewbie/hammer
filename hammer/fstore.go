@@ -3,7 +3,6 @@ package hammer
 import (
 	"fmt"
 	"io"
-	"net/url"
 	"os"
 
 	"github.com/curtisnewbie/gocommon/client"
@@ -35,7 +34,8 @@ type FstoreFile struct {
 func GetFstoreTmpToken(c common.ExecContext, fileId string) (string /* tmpToken */, error) {
 	r := client.NewDynTClient(c, "/file/key", "fstore").
 		EnableTracing().
-		Get(map[string][]string{"fileId": {fileId}})
+		AddQueryParams("fileId", fileId).
+		Get()
 	if r.Err != nil {
 		return "", r.Err
 	}
@@ -55,9 +55,8 @@ func GetFstoreTmpToken(c common.ExecContext, fileId string) (string /* tmpToken 
 func DownloadFstoreFile(c common.ExecContext, tmpToken string, absPath string) error {
 	r := client.NewDynTClient(c, "/file/raw", "fstore").
 		EnableTracing().
-		Get(map[string][]string{
-			"key": {tmpToken},
-		})
+		AddQueryParams("key", tmpToken).
+		Get()
 	if r.Err != nil {
 		return r.Err
 	}
@@ -106,7 +105,9 @@ func UploadFstoreFile(c common.ExecContext, filename string, file string) (strin
 func FetchFstoreFileInfo(c common.ExecContext, fileId string, uploadFileId string) (FstoreFile, error) {
 	r := client.NewDynTClient(c, "/file/info", "fstore").
 		EnableTracing().
-		Get(map[string][]string{"fileId": {fileId}, "uploadFileId": {url.QueryEscape(uploadFileId)}})
+		AddQueryParams("fileId", fileId).
+		AddQueryParams("uploadFileId", uploadFileId).
+		Get()
 	if r.Err != nil {
 		return FstoreFile{}, r.Err
 	}

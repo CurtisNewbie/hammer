@@ -3,7 +3,7 @@ module github.com/curtisnewbie/hammer
 go 1.18
 
 require (
-	github.com/curtisnewbie/gocommon v1.0.13-0.20230719153106-eda337c1580d
+	github.com/curtisnewbie/gocommon v1.0.13
 	github.com/h2non/bimg v1.1.9
 )
 
