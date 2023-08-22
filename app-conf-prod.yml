@@ -34,8 +34,6 @@ tracing.propagation.keys:
 
 logging.rolling.file: "/usr/src/logs/${app.name}.log"
 
-goauth.report.enabled: true
-
 rabbitmq:
   enabled: true
   host: "rabbitmq"
