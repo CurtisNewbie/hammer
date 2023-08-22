@@ -41,3 +41,5 @@ rabbitmq:
   username: "${rabbitmqusername}"
   password: "${rabbitmqpassword}"
   vhost: "/"
+
+goauth.client.enabled: true
