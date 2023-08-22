@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	c := common.EmptyExecContext()
+	c := common.EmptyRail()
 	hammer.PrepareServer(c)
 	server.BootstrapServer(os.Args)
 }

@@ -31,8 +31,8 @@ type FstoreFile struct {
 	PhyDelTime *common.ETime `json:"phyDelTime"`
 }
 
-func GetFstoreTmpToken(c common.ExecContext, fileId string) (string /* tmpToken */, error) {
-	r := client.NewDynTClient(c, "/file/key", "fstore").
+func GetFstoreTmpToken(rail common.Rail, fileId string) (string /* tmpToken */, error) {
+	r := client.NewDynTClient(rail, "/file/key", "fstore").
 		EnableTracing().
 		AddQueryParams("fileId", fileId).
 		Get()
@@ -52,8 +52,8 @@ func GetFstoreTmpToken(c common.ExecContext, fileId string) (string /* tmpToken 
 	return res.Data, nil
 }
 
-func DownloadFstoreFile(c common.ExecContext, tmpToken string, absPath string) error {
-	r := client.NewDynTClient(c, "/file/raw", "fstore").
+func DownloadFstoreFile(rail common.Rail, tmpToken string, absPath string) error {
+	r := client.NewDynTClient(rail, "/file/raw", "fstore").
 		EnableTracing().
 		AddQueryParams("key", tmpToken).
 		Get()
@@ -75,14 +75,14 @@ func DownloadFstoreFile(c common.ExecContext, tmpToken string, absPath string) e
 	return nil
 }
 
-func UploadFstoreFile(c common.ExecContext, filename string, file string) (string /* uploadFileId */, error) {
+func UploadFstoreFile(rail common.Rail, filename string, file string) (string /* uploadFileId */, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return "", fmt.Errorf("failed to open file, %v", err)
 	}
 	defer f.Close()
 
-	r := client.NewDynTClient(c, "/file", "fstore").
+	r := client.NewDynTClient(rail, "/file", "fstore").
 		EnableTracing().
 		AddHeaders(map[string]string{"filename": filename}).
 		Put(f)
@@ -102,8 +102,8 @@ func UploadFstoreFile(c common.ExecContext, filename string, file string) (strin
 	return res.Data, nil
 }
 
-func FetchFstoreFileInfo(c common.ExecContext, fileId string, uploadFileId string) (FstoreFile, error) {
-	r := client.NewDynTClient(c, "/file/info", "fstore").
+func FetchFstoreFileInfo(rail common.Rail, fileId string, uploadFileId string) (FstoreFile, error) {
+	r := client.NewDynTClient(rail, "/file/info", "fstore").
 		EnableTracing().
 		AddQueryParams("fileId", fileId).
 		AddQueryParams("uploadFileId", uploadFileId).
