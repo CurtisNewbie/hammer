@@ -5,8 +5,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/curtisnewbie/gocommon/client"
-	"github.com/curtisnewbie/gocommon/common"
+	"github.com/curtisnewbie/miso/client"
+	"github.com/curtisnewbie/miso/core"
 )
 
 type GenFileTempTokenReq struct {
@@ -15,7 +15,7 @@ type GenFileTempTokenReq struct {
 }
 
 type GenFileTempTokenResp struct {
-	common.Resp
+	core.Resp
 	Data map[string]string `json:"data"`
 }
 
@@ -26,12 +26,12 @@ type FstoreFile struct {
 	Status     string        `json:"status"`
 	Size       int64         `json:"size"`
 	Md5        string        `json:"md5"`
-	UplTime    common.ETime  `json:"uplTime"`
-	LogDelTime *common.ETime `json:"logDelTime"`
-	PhyDelTime *common.ETime `json:"phyDelTime"`
+	UplTime    core.ETime  `json:"uplTime"`
+	LogDelTime *core.ETime `json:"logDelTime"`
+	PhyDelTime *core.ETime `json:"phyDelTime"`
 }
 
-func GetFstoreTmpToken(rail common.Rail, fileId string) (string /* tmpToken */, error) {
+func GetFstoreTmpToken(rail core.Rail, fileId string) (string /* tmpToken */, error) {
 	r := client.NewDynTClient(rail, "/file/key", "fstore").
 		EnableTracing().
 		AddQueryParams("fileId", fileId).
@@ -41,7 +41,7 @@ func GetFstoreTmpToken(rail common.Rail, fileId string) (string /* tmpToken */, 
 	}
 	defer r.Close()
 
-	var res common.GnResp[string]
+	var res core.GnResp[string]
 	if e := r.ReadJson(&res); e != nil {
 		return "", e
 	}
@@ -52,7 +52,7 @@ func GetFstoreTmpToken(rail common.Rail, fileId string) (string /* tmpToken */, 
 	return res.Data, nil
 }
 
-func DownloadFstoreFile(rail common.Rail, tmpToken string, absPath string) error {
+func DownloadFstoreFile(rail core.Rail, tmpToken string, absPath string) error {
 	r := client.NewDynTClient(rail, "/file/raw", "fstore").
 		EnableTracing().
 		AddQueryParams("key", tmpToken).
@@ -75,7 +75,7 @@ func DownloadFstoreFile(rail common.Rail, tmpToken string, absPath string) error
 	return nil
 }
 
-func UploadFstoreFile(rail common.Rail, filename string, file string) (string /* uploadFileId */, error) {
+func UploadFstoreFile(rail core.Rail, filename string, file string) (string /* uploadFileId */, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return "", fmt.Errorf("failed to open file, %v", err)
@@ -91,7 +91,7 @@ func UploadFstoreFile(rail common.Rail, filename string, file string) (string /*
 	}
 	defer r.Close()
 
-	var res common.GnResp[string]
+	var res core.GnResp[string]
 	if e := r.ReadJson(&res); e != nil {
 		return "", e
 	}
@@ -102,7 +102,7 @@ func UploadFstoreFile(rail common.Rail, filename string, file string) (string /*
 	return res.Data, nil
 }
 
-func FetchFstoreFileInfo(rail common.Rail, fileId string, uploadFileId string) (FstoreFile, error) {
+func FetchFstoreFileInfo(rail core.Rail, fileId string, uploadFileId string) (FstoreFile, error) {
 	r := client.NewDynTClient(rail, "/file/info", "fstore").
 		EnableTracing().
 		AddQueryParams("fileId", fileId).
@@ -113,7 +113,7 @@ func FetchFstoreFileInfo(rail common.Rail, fileId string, uploadFileId string) (
 	}
 	defer r.Close()
 
-	var res common.GnResp[FstoreFile]
+	var res core.GnResp[FstoreFile]
 	if e := r.ReadJson(&res); e != nil {
 		return FstoreFile{}, e
 	}

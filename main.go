@@ -3,13 +3,16 @@ package main
 import (
 	"os"
 
-	"github.com/curtisnewbie/gocommon/common"
-	"github.com/curtisnewbie/gocommon/server"
 	"github.com/curtisnewbie/hammer/hammer"
+	"github.com/curtisnewbie/miso/core"
+	"github.com/curtisnewbie/miso/server"
 )
 
 func main() {
-	c := common.EmptyRail()
-	hammer.PrepareServer(c)
+	server.PreServerBootstrap(func(rail core.Rail) error {
+		hammer.PrepareServer(rail)
+		return nil
+	})
+
 	server.BootstrapServer(os.Args)
 }

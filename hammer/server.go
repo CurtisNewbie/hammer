@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/curtisnewbie/gocommon/bus"
-	"github.com/curtisnewbie/gocommon/common"
+	"github.com/curtisnewbie/miso/bus"
+	"github.com/curtisnewbie/miso/core"
 )
 
 const (
@@ -18,12 +18,12 @@ type CompressImageEvent struct {
 	FileId  string // file id from mini-fstore
 }
 
-func PrepareServer(rail common.Rail) {
+func PrepareServer(rail core.Rail) {
 	bus.DeclareEventBus(comprImgNotifyBus)
 	bus.SubscribeEventBus(comprImgProcBus, 1, ListenCompressImageEvent)
 }
 
-func ListenCompressImageEvent(rail common.Rail, evt CompressImageEvent) error {
+func ListenCompressImageEvent(rail core.Rail, evt CompressImageEvent) error {
 	rail.Infof("Received CompressImageEvent: %+v", evt)
 
 	// generate temp token for downloading file from mini-fstore
@@ -35,7 +35,7 @@ func ListenCompressImageEvent(rail common.Rail, evt CompressImageEvent) error {
 	rail.Infof("tkn: %v", tkn)
 
 	// temp path for the downloaded file
-	downloaded := "/tmp/" + common.RandNum(20)
+	downloaded := "/tmp/" + core.RandNum(20)
 
 	// download the file from mini-fstore
 	if e := DownloadFstoreFile(rail, tkn, downloaded); e != nil {

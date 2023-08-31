@@ -3,7 +3,7 @@ module github.com/curtisnewbie/hammer
 go 1.18
 
 require (
-	github.com/curtisnewbie/gocommon v1.1.0
+	github.com/curtisnewbie/miso v0.0.0-20230831014220-de3939b0ac66
 	github.com/h2non/bimg v1.1.9
 )
 
@@ -55,6 +55,7 @@ require (
 	github.com/prometheus/procfs v0.0.8 // indirect
 	github.com/rabbitmq/amqp091-go v1.5.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
