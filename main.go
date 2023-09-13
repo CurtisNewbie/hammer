@@ -4,15 +4,14 @@ import (
 	"os"
 
 	"github.com/curtisnewbie/hammer/hammer"
-	"github.com/curtisnewbie/miso/core"
-	"github.com/curtisnewbie/miso/server"
+	"github.com/curtisnewbie/miso/miso"
 )
 
 func main() {
-	server.PreServerBootstrap(func(rail core.Rail) error {
+	miso.PreServerBootstrap(func(rail miso.Rail) error {
 		hammer.PrepareServer(rail)
 		return nil
 	})
 
-	server.BootstrapServer(os.Args)
+	miso.BootstrapServer(os.Args)
 }

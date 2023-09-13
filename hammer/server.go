@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/curtisnewbie/miso/bus"
-	"github.com/curtisnewbie/miso/core"
+	"github.com/curtisnewbie/miso/miso"
 )
 
 const (
@@ -18,12 +17,12 @@ type CompressImageEvent struct {
 	FileId  string // file id from mini-fstore
 }
 
-func PrepareServer(rail core.Rail) {
-	bus.DeclareEventBus(comprImgNotifyBus)
-	bus.SubscribeEventBus(comprImgProcBus, 1, ListenCompressImageEvent)
+func PrepareServer(rail miso.Rail) {
+	miso.NewEventBus(comprImgNotifyBus)
+	miso.SubEventBus(comprImgProcBus, 1, ListenCompressImageEvent)
 }
 
-func ListenCompressImageEvent(rail core.Rail, evt CompressImageEvent) error {
+func ListenCompressImageEvent(rail miso.Rail, evt CompressImageEvent) error {
 	rail.Infof("Received CompressImageEvent: %+v", evt)
 
 	// generate temp token for downloading file from mini-fstore
@@ -35,7 +34,7 @@ func ListenCompressImageEvent(rail core.Rail, evt CompressImageEvent) error {
 	rail.Infof("tkn: %v", tkn)
 
 	// temp path for the downloaded file
-	downloaded := "/tmp/" + core.RandNum(20)
+	downloaded := "/tmp/" + miso.RandNum(20)
 
 	// download the file from mini-fstore
 	if e := DownloadFstoreFile(rail, tkn, downloaded); e != nil {
@@ -71,7 +70,7 @@ func ListenCompressImageEvent(rail core.Rail, evt CompressImageEvent) error {
 	// record exists, dispatch the event to the oubound event bus (notify vfm about the fileId of the thumbnail)
 	if thumbnailFile.Id > 0 {
 		outboundEvent := CompressImageEvent{FileKey: evt.FileKey, FileId: thumbnailFile.FileId}
-		bus.SendToEventBus(rail, outboundEvent, comprImgNotifyBus)
+		miso.PubEventBus(rail, outboundEvent, comprImgNotifyBus)
 	}
 	return nil
 }
