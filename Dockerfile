@@ -37,9 +37,9 @@ RUN apk add --no-cache vips \
     vips-dev
 
 WORKDIR /usr/src/
-COPY --from=build /go/src/build/main ./main
+COPY --from=build /go/src/build/main ./app_hammer
 COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
 
 ENV TZ=Asia/Shanghai
 
-CMD ["./main", "app.name=hammer", "configFile=/usr/src/config/app-conf-prod.yml"]
+CMD ["./app_hammer", "configFile=/usr/src/config/app-conf-prod.yml"]
