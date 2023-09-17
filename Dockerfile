@@ -33,7 +33,7 @@ RUN go build -o main
 FROM alpine:3.17
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-RUN apk add --no-cache vips \
+RUN apk add vips \
     vips-dev
 
 WORKDIR /usr/src/
