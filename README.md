@@ -1,10 +1,6 @@
 # hammer
 
-Hammer - Simple Image Compression Service
-
-## Requirements
-
-- libvips (see https://github.com/h2non/bimg)
+Hammer - Simple Image Compression Service.
 
 ### The Sequence
 
