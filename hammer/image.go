@@ -10,6 +10,7 @@ import (
 
 	"github.com/curtisnewbie/miso/miso"
 	"github.com/disintegration/gift"
+	_ "golang.org/x/image/webp"
 	// "github.com/h2non/bimg"
 )
 
