@@ -37,7 +37,7 @@ func GiftCompressImage(rail miso.Rail, file string, output string) error {
 		return fmt.Errorf("failed to load image, filename: %v, %v", file, err)
 	}
 
-	imgFilter := gift.New(gift.Resize(256, 256, gift.LanczosResampling))
+	imgFilter := gift.New(gift.ResizeToFit(256, 256, gift.LanczosResampling))
 	dst := image.NewNRGBA(imgFilter.Bounds(src.Bounds()))
 	imgFilter.Draw(dst, src)
 	if err := saveImage(rail, output, dst, typ); err != nil {
