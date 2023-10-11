@@ -46,7 +46,7 @@ func ListenCompressImageEvent(rail miso.Rail, evt CompressImageEvent) error {
 
 	// compress the image
 	compressed := downloaded + "_compressed"
-	if e := CompressImage(downloaded, compressed); e != nil {
+	if e := GiftCompressImage(rail, downloaded, compressed); e != nil {
 		rail.Errorf("Failed to compress image, %v", e)
 		return nil // if the compression failed, there is no need to retry
 	}

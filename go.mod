@@ -4,7 +4,8 @@ go 1.18
 
 require (
 	github.com/curtisnewbie/miso v0.0.2
-	github.com/h2non/bimg v1.1.9
+	github.com/disintegration/gift v1.2.1
+// github.com/h2non/bimg v1.1.9
 )
 
 require (

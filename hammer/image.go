@@ -2,24 +2,86 @@ package hammer
 
 import (
 	"fmt"
+	"image"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
+	"os"
 
-	"github.com/h2non/bimg"
+	"github.com/curtisnewbie/miso/miso"
+	"github.com/disintegration/gift"
+	// "github.com/h2non/bimg"
 )
 
 // Compress image
-func CompressImage(file string, output string) error {
-	buffer, err := bimg.Read(file)
+// func VipCompressImage(file string, output string) error {
+// 	buffer, err := bimg.Read(file)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	thumbnail, err := bimg.NewImage(buffer).Thumbnail(256)
+// 	if err != nil {
+// 		return fmt.Errorf("failed to generate thumbnail, %v", err)
+// 	}
+
+// 	if err = bimg.Write(output, thumbnail); err != nil {
+// 		return fmt.Errorf("failed to write thumbnail file, %v", err)
+// 	}
+// 	return nil
+// }
+
+func GiftCompressImage(rail miso.Rail, file string, output string) error {
+	src, typ, err := loadImage(rail, file)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to load image, filename: %v, %v", file, err)
 	}
 
-	thumbnail, err := bimg.NewImage(buffer).Thumbnail(256)
+	imgFilter := gift.New(gift.Resize(256, 256, gift.LanczosResampling))
+	dst := image.NewNRGBA(imgFilter.Bounds(src.Bounds()))
+	imgFilter.Draw(dst, src)
+	if err := saveImage(rail, output, dst, typ); err != nil {
+		return fmt.Errorf("failed to save filtered image, file: %v, %v", output, err)
+	}
+	return nil
+}
+
+func loadImage(rail miso.Rail, filename string) (image.Image, string, error) {
+	f, err := os.Open(filename)
 	if err != nil {
-		return fmt.Errorf("failed to generate thumbnail, %v", err)
+		return nil, "", fmt.Errorf("failed to open image file, filename: %v, %v", filename, err)
+	}
+	defer f.Close()
+	img, typ, err := image.Decode(f)
+	if err != nil {
+		rail.Errorf("image decode failed, filename: %v, %v", filename, err)
+		return nil, "", err
+	}
+	return img, typ, nil
+}
+
+func saveImage(rail miso.Rail, filename string, img image.Image, typ string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return fmt.Errorf("failed to create image file, filename: %v, %v", filename, err)
+	}
+	defer f.Close()
+
+	rail.Infof("image type: %v, %v", filename, typ)
+
+	switch typ {
+	case "png":
+		err = png.Encode(f, img)
+	case "jpeg":
+		err = jpeg.Encode(f, img, nil)
+	case "gif":
+		err = gif.Encode(f, img, nil)
+	default:
+		err = png.Encode(f, img)
 	}
 
-	if err = bimg.Write(output, thumbnail); err != nil {
-		return fmt.Errorf("failed to write thumbnail file, %v", err)
+	if err != nil {
+		return fmt.Errorf("image encode failed, filename: %v, %v", filename, err)
 	}
 	return nil
 }
