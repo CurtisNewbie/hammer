@@ -31,24 +31,16 @@ type FstoreFile struct {
 }
 
 func GetFstoreTmpToken(rail miso.Rail, fileId string) (string /* tmpToken */, error) {
-	r := miso.NewDynTClient(rail, "/file/key", "fstore").
+	var res miso.GnResp[string]
+	err := miso.NewDynTClient(rail, "/file/key", "fstore").
 		EnableTracing().
 		AddQueryParams("fileId", fileId).
-		Get()
-	if r.Err != nil {
-		return "", r.Err
+		Get().
+		Json(&res)
+	if err != nil {
+		return "", fmt.Errorf("failed to GetFstoreTmpToken, fileId: %v, %v", fileId, err)
 	}
-	defer r.Close()
-
-	var res miso.GnResp[string]
-	if e := r.ReadJson(&res); e != nil {
-		return "", e
-	}
-
-	if res.Error {
-		return "", res.Err()
-	}
-	return res.Data, nil
+	return res.Res()
 }
 
 func DownloadFstoreFile(rail miso.Rail, tmpToken string, absPath string) error {
@@ -81,40 +73,29 @@ func UploadFstoreFile(rail miso.Rail, filename string, file string) (string /* u
 	}
 	defer f.Close()
 
-	r := miso.NewDynTClient(rail, "/file", "fstore").
+	var res miso.GnResp[string]
+	err = miso.NewDynTClient(rail, "/file", "fstore").
 		EnableTracing().
 		AddHeaders(map[string]string{"filename": filename}).
-		Put(f)
-	if r.Err != nil {
-		return "", r.Err
+		Put(f).
+		Json(&res)
+	if err != nil {
+		return "", fmt.Errorf("failed to UploadFstoreFile, filename: %v, file: %v, %v", filename, file, err)
 	}
-	defer r.Close()
-
-	var res miso.GnResp[string]
-	if e := r.ReadJson(&res); e != nil {
-		return "", e
-	}
-
-	if res.Error {
-		return "", res.Err()
-	}
-	return res.Data, nil
+	return res.Res()
 }
 
 func FetchFstoreFileInfo(rail miso.Rail, fileId string, uploadFileId string) (FstoreFile, error) {
-	r := miso.NewDynTClient(rail, "/file/info", "fstore").
+	var res miso.GnResp[FstoreFile]
+	err := miso.NewDynTClient(rail, "/file/info", "fstore").
 		EnableTracing().
 		AddQueryParams("fileId", fileId).
 		AddQueryParams("uploadFileId", uploadFileId).
-		Get()
-	if r.Err != nil {
-		return FstoreFile{}, r.Err
+		Get().
+		Json(&res)
+	if err != nil {
+		return FstoreFile{}, fmt.Errorf("failed FetchFstoreFileInfo, fileId: %v, uploadFileId: %v, %v", fileId,
+			uploadFileId, err)
 	}
-	defer r.Close()
-
-	var res miso.GnResp[FstoreFile]
-	if e := r.ReadJson(&res); e != nil {
-		return FstoreFile{}, e
-	}
-	return res.Data, res.Err()
+	return res.Res()
 }
