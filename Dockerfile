@@ -1,6 +1,6 @@
 FROM golang:1.18-alpine as build
 LABEL author="Yongjie Zhuang"
-LABEL descrption="Hammer - Image processing service"
+LABEL descrption="Hammer - image compression service"
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 RUN apk add --no-cache vips \
