@@ -3,7 +3,7 @@ module github.com/curtisnewbie/hammer
 go 1.18
 
 require (
-	github.com/curtisnewbie/miso v0.0.12-beta.2
+	github.com/curtisnewbie/miso v0.0.12
 	github.com/disintegration/gift v1.2.1
 	golang.org/x/image v0.13.0
 // github.com/h2non/bimg v1.1.9
