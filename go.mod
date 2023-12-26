@@ -3,7 +3,7 @@ module github.com/curtisnewbie/hammer
 go 1.18
 
 require (
-	github.com/curtisnewbie/miso v0.0.5
+	github.com/curtisnewbie/miso v0.0.12-beta.2
 	github.com/disintegration/gift v1.2.1
 	golang.org/x/image v0.13.0
 // github.com/h2non/bimg v1.1.9
@@ -27,7 +27,6 @@ require (
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/consul/api v1.15.3 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.2.0 // indirect

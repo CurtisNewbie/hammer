@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	comprImgProcBus   = "hammer.image.compress.processing"
-	comprImgNotifyBus = "hammer.image.compress.notification"
+	comprImgProcBus   = "event.bus.hammer.image.compress.processing"
+	comprImgNotifyBus = "event.bus.hammer.image.compress.notification"
 )
 
 type CompressImageEvent struct {
@@ -19,6 +19,7 @@ type CompressImageEvent struct {
 
 func PrepareServer(rail miso.Rail) {
 	miso.NewEventBus(comprImgNotifyBus)
+	miso.NewEventBus(comprImgProcBus)
 	miso.SubEventBus(comprImgProcBus, 1, ListenCompressImageEvent)
 }
 

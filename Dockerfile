@@ -42,4 +42,4 @@ COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
 
 ENV TZ=Asia/Shanghai
 
-CMD ["./app_hammer", "configFile=/usr/src/config/app-conf-prod.yml"]
+CMD ["./app_hammer", "configFile=/usr/src/config/conf.yml"]
