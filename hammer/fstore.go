@@ -85,7 +85,7 @@ func UploadFstoreFile(rail miso.Rail, filename string, file string) (string /* u
 	return res.Res()
 }
 
-func FetchFstoreFileInfo(rail miso.Rail, fileId string, uploadFileId string) (FstoreFile, error) {
+func FetchFstoreFileInfo(rail miso.Rail, fileId string, uploadFileId string) (*FstoreFile, error) {
 	var res miso.GnResp[FstoreFile]
 	err := miso.NewDynTClient(rail, "/file/info", "fstore").
 		EnableTracing().
@@ -94,8 +94,17 @@ func FetchFstoreFileInfo(rail miso.Rail, fileId string, uploadFileId string) (Fs
 		Get().
 		Json(&res)
 	if err != nil {
-		return FstoreFile{}, fmt.Errorf("failed FetchFstoreFileInfo, fileId: %v, uploadFileId: %v, %v", fileId,
+		return nil, fmt.Errorf("failed FetchFstoreFileInfo, fileId: %v, uploadFileId: %v, %v", fileId,
 			uploadFileId, err)
 	}
-	return res.Res()
+
+	if res.Error && res.ErrorCode == "FILE_NOT_FOUND" {
+		return nil, nil
+	}
+
+	ff, err := res.Res()
+	if err != nil {
+		return nil, err
+	}
+	return &ff, nil
 }

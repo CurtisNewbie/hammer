@@ -26,6 +26,15 @@ func PrepareServer(rail miso.Rail) {
 func ListenCompressImageEvent(rail miso.Rail, evt CompressImageEvent) error {
 	rail.Infof("Received CompressImageEvent: %+v", evt)
 
+	originFile, e := FetchFstoreFileInfo(rail, evt.FileId, "")
+	if e != nil {
+		return fmt.Errorf("failed to fetch fstore file info: %v, %v", evt.FileId, e)
+	}
+	if originFile == nil {
+		rail.Warnf("File %v is not found, %v", evt.FileId, evt.FileKey)
+		return nil
+	}
+
 	// generate temp token for downloading file from mini-fstore
 	tkn, e := GetFstoreTmpToken(rail, evt.FileId)
 	if e != nil {
@@ -55,7 +64,7 @@ func ListenCompressImageEvent(rail miso.Rail, evt CompressImageEvent) error {
 	rail.Infof("Image %v compressed to %v", evt.FileKey, compressed)
 
 	// upload the image back to mini-fstore
-	uploadFileId, e := UploadFstoreFile(rail, evt.FileKey+"_thumbnail", compressed)
+	uploadFileId, e := UploadFstoreFile(rail, originFile.Name+"_thumbnail", compressed)
 	if e != nil {
 		rail.Errorf("Failed to UploadFstoreFile, %v", e)
 		return fmt.Errorf("failed to upload fstore file, %v", e)
