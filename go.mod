@@ -3,6 +3,7 @@ module github.com/curtisnewbie/hammer
 go 1.18
 
 require (
+	github.com/curtisnewbie/mini-fstore v0.1.5
 	github.com/curtisnewbie/miso v0.0.14
 	github.com/disintegration/gift v1.2.1
 	golang.org/x/image v0.13.0

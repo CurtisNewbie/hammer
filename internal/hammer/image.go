@@ -11,26 +11,7 @@ import (
 	"github.com/curtisnewbie/miso/miso"
 	"github.com/disintegration/gift"
 	_ "golang.org/x/image/webp"
-	// "github.com/h2non/bimg"
 )
-
-// Compress image
-// func VipCompressImage(file string, output string) error {
-// 	buffer, err := bimg.Read(file)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	thumbnail, err := bimg.NewImage(buffer).Thumbnail(256)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to generate thumbnail, %v", err)
-// 	}
-
-// 	if err = bimg.Write(output, thumbnail); err != nil {
-// 		return fmt.Errorf("failed to write thumbnail file, %v", err)
-// 	}
-// 	return nil
-// }
 
 func GiftCompressImage(rail miso.Rail, file string, output string) error {
 	src, typ, err := loadImage(rail, file)
