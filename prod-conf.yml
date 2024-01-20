@@ -2,19 +2,19 @@ mode.production: true
 
 app.name: "hammer"
 
-mysql:
-  enabled: false
-  user: "${mysqlusername}"
-  password: "${mysqlpassword}"
-  database: "${app.name}"
-  host: "${mysqladdr}"
-  port: 3306
+# mysql:
+#   enabled: false
+#   user: "${mysqlusername}"
+#   password: "${mysqlpassword}"
+#   database: "${app.name}"
+#   host: "${mysqladdr}"
+#   port: 3306
 
-redis:
-  enabled: false
-  address: "redis"
-  port: 6379
-  database: 0
+# redis:
+#   enabled: false
+#   address: "redis"
+#   port: 6379
+#   database: 0
 
 server:
   host: "0.0.0.0"
@@ -42,4 +42,4 @@ rabbitmq:
   password: "${rabbitmqpassword}"
   vhost: "/"
 
-goauth.client.enabled: true
+goauth.client.enabled: false

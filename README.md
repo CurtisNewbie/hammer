@@ -4,7 +4,6 @@ Hammer - Simple Image Compression Service.
 
 ## Dependencies
 
-- Redis
 - Consul
 - RabbitMQ
 - [mini-fstore](https://github.com/curtisnewbie/mini-fstore)

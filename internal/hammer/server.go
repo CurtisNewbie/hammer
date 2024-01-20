@@ -13,9 +13,7 @@ import (
 func BootstrapServer(args []string) {
 	miso.PreServerBootstrap(func(rail miso.Rail) error {
 		miso.NewEventBus(api.CompressImageTriggerEventBus)
-		if err := miso.SubEventBus(api.CompressImageTriggerEventBus, 1, ListenCompressImageEvent); err != nil {
-			return err
-		}
+		miso.SubEventBus(api.CompressImageTriggerEventBus, 2, ListenCompressImageEvent)
 		return nil
 	})
 	miso.BootstrapServer(os.Args)
