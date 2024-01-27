@@ -24,13 +24,6 @@ consul:
   enabled: true
   consulAddress: localhost:8500
 
-tracing.propagation.keys:
-  - id
-  - userno
-  - username
-  - role
-  - roleno
-
 rabbitmq:
   enabled: true
   username: guest
