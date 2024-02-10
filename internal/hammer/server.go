@@ -151,7 +151,7 @@ func GenerateVideoThumbnail(rail miso.Rail, evt api.GenVideoThumbnailTriggerEven
 	streamUrl := baseUrl + "?key=" + url.QueryEscape(originFileToken)
 
 	if err := ExtractFirstFrame(rail, streamUrl, genPath); err != nil {
-		rail.Errorf("Failed to generate vidoe thumbnail, giving up, %v", err)
+		rail.Errorf("Failed to generate video thumbnail, giving up, %v", err)
 		return "", nil
 	}
 	rail.Infof("Video (%v)'s first frame is generated to %v", evt.Identifier, genPath)
@@ -159,7 +159,7 @@ func GenerateVideoThumbnail(rail miso.Rail, evt api.GenVideoThumbnailTriggerEven
 	// upload the compressed image to mini-fstore
 	genFile, err := os.Open(genPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to open generated video thumbnail, file: %v, %w", genFile, err)
+		return "", fmt.Errorf("failed to open generated video thumbnail file: %v, %w", genFile, err)
 	}
 	defer genFile.Close()
 
