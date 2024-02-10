@@ -1,12 +1,13 @@
 # hammer
 
-Hammer - Simple Image Compression Service.
+Hammer - Simple Thumbnail Generation Service (for images and videos).
 
 ## Dependencies
 
 - Consul
 - RabbitMQ
 - [mini-fstore](https://github.com/curtisnewbie/mini-fstore)
+- ffmpeg (for generating video thumbnail)
 
 ## Updates
 

@@ -3,22 +3,18 @@ package hammer
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
-	"time"
 
 	"github.com/curtisnewbie/hammer/api"
 	fstore "github.com/curtisnewbie/mini-fstore/client"
 	"github.com/curtisnewbie/miso/miso"
 )
 
-var (
-	compressedImageFileIdCache = miso.NewTTLCache[string](15*time.Minute, 200)
-)
-
 func BootstrapServer(args []string) {
 	miso.PreServerBootstrap(func(rail miso.Rail) error {
-		miso.NewEventBus(api.CompressImageTriggerEventBus)
 		miso.SubEventBus(api.CompressImageTriggerEventBus, 2, ListenCompressImageEvent)
+		miso.SubEventBus(api.GenVideoThumbnailTriggerEventBus, 2, ListenGenVideoThumbnailEvent)
 		return nil
 	})
 	miso.BootstrapServer(os.Args)
@@ -27,35 +23,38 @@ func BootstrapServer(args []string) {
 func ListenCompressImageEvent(rail miso.Rail, evt api.ImageCompressTriggerEvent) error {
 	rail.Infof("Received CompressImageEvent: %+v", evt)
 
-	// wrap the compression logic with cache
-	// it's possible that we compressed the image but somehow failed to reply to rabbitmq
-	// using a tiny time-based cache can avoid compressing the same images again and again
-	var err error
-	generatedFileId, ok := compressedImageFileIdCache.Get(evt.Identifier, func() (string, bool) {
-		generatedFileId, er := CompressImage(rail, evt)
-		err = er
-		return generatedFileId, er == nil && generatedFileId != ""
-	})
+	generatedFileId, err := CompressImage(rail, evt)
 	if err != nil {
 		return err
 	}
-	if !ok {
+	if evt.ReplyTo == "" {
+		rail.Warn("ImageCompressTriggerEvent.ReplyTo is empty")
 		return nil
 	}
-
 	// reply to the specified event bus
-	err = miso.PubEventBus(rail,
+	return miso.PubEventBus(rail,
 		api.ImageCompressReplyEvent{Identifier: evt.Identifier, FileId: generatedFileId},
 		evt.ReplyTo)
-	if err == nil {
-		compressedImageFileIdCache.Del(evt.Identifier)
+}
+
+func ListenGenVideoThumbnailEvent(rail miso.Rail, evt api.GenVideoThumbnailTriggerEvent) error {
+	rail.Infof("Received GenVideoThumbnailTriggerEvent: %+v", evt)
+
+	generatedFileId, err := GenerateVideoThumbnail(rail, evt)
+	if err != nil {
+		return err
 	}
-	return err
+	if evt.ReplyTo == "" {
+		rail.Warn("GenVideoThumbnailTriggerEvent.ReplyTo is empty")
+		return nil
+	}
+	// reply to the specified event bus
+	return miso.PubEventBus(rail,
+		api.GenVideoThumbnailReplyEvent{Identifier: evt.Identifier, FileId: generatedFileId},
+		evt.ReplyTo)
 }
 
 func CompressImage(rail miso.Rail, evt api.ImageCompressTriggerEvent) (string, error) {
-	rail.Infof("Received CompressImageEvent: %+v", evt)
-
 	originFile, err := fstore.FetchFileInfo(rail, fstore.FetchFileInfoReq{FileId: evt.FileId})
 	if err != nil {
 		if errors.Is(err, fstore.ErrFileDeleted) || errors.Is(err, fstore.ErrFileNotFound) {
@@ -115,6 +114,66 @@ func CompressImage(rail miso.Rail, evt api.ImageCompressTriggerEvent) (string, e
 	if e != nil {
 		rail.Errorf("Failed to FetchFstoreFileInfo, %v", e)
 		return "", fmt.Errorf("failed to fetch fstore file info, %v", e)
+	}
+
+	return thumbnailFile.FileId, nil
+}
+
+func GenerateVideoThumbnail(rail miso.Rail, evt api.GenVideoThumbnailTriggerEvent) (string, error) {
+	rail.Infof("Received GenVideoThumbnailTriggerEvent: %+v", evt)
+
+	originFile, err := fstore.FetchFileInfo(rail, fstore.FetchFileInfoReq{FileId: evt.FileId})
+	if err != nil {
+		if errors.Is(err, fstore.ErrFileDeleted) || errors.Is(err, fstore.ErrFileNotFound) {
+			rail.Warnf("File %v is not found or deleted, %v", evt.FileId, evt.Identifier)
+			return "", nil
+		}
+		return "", fmt.Errorf("failed to fetch fstore file info: %v, %v", evt.FileId, err)
+	}
+
+	// generate temp token for downloading file from mini-fstore
+	originFileToken, e := fstore.GenTempFileKey(rail, evt.FileId, "")
+	if e != nil {
+		rail.Errorf("Failed to GenTempFileKey, %v", e)
+		return "", nil
+	}
+	rail.Infof("tkn: %v", originFileToken)
+
+	// temp path for ffmpeg to extract first frame of the video
+	genPath := "/tmp/" + miso.RandNum(20) + ".png"
+	defer os.Remove(genPath)
+
+	// build url to stream the original file from mini-fstore
+	baseUrl, err := miso.ConsulResolveRequestUrl("fstore", "/file/stream")
+	if err != nil {
+		return "", err
+	}
+	streamUrl := baseUrl + "?key=" + url.QueryEscape(originFileToken)
+
+	if err := ExtractFirstFrame(rail, streamUrl, genPath); err != nil {
+		rail.Errorf("Failed to generate vidoe thumbnail, giving up, %v", err)
+		return "", nil
+	}
+	rail.Infof("Video (%v)'s first frame is generated to %v", evt.Identifier, genPath)
+
+	// upload the compressed image to mini-fstore
+	genFile, err := os.Open(genPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open generated video thumbnail, file: %v, %w", genFile, err)
+	}
+	defer genFile.Close()
+
+	uploadFileId, e := fstore.UploadFile(rail, originFile.Name+"_thumbnail", genFile)
+	if e != nil {
+		rail.Errorf("Failed to UploadFile, %v", e)
+		return "", fmt.Errorf("failed to upload fstore file, %v", e)
+	}
+
+	// exchange the uploadFileId with the real fileId
+	thumbnailFile, e := fstore.FetchFileInfo(rail, fstore.FetchFileInfoReq{UploadFileId: uploadFileId})
+	if e != nil {
+		rail.Errorf("Failed to FetchFileInfo, %v", e)
+		return "", fmt.Errorf("failed to fetch fstore file info, %w", e)
 	}
 
 	return thumbnailFile.FileId, nil

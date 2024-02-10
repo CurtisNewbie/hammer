@@ -1,6 +1,6 @@
 FROM golang:1.18-alpine as build
 LABEL author="Yongjie Zhuang"
-LABEL descrption="Hammer - image compression service"
+LABEL descrption="Hammer - Thumbnail Generation Service"
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
 RUN apk add --no-cache vips \
@@ -33,8 +33,9 @@ RUN go build -o main
 FROM alpine:3.17
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-RUN apk add vips \
-    vips-dev
+RUN apk --no-cache add vips \
+    vips-dev \
+    ffmpeg
 
 WORKDIR /usr/src/
 COPY --from=build /go/src/build/main ./app_hammer
