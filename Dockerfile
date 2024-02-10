@@ -1,45 +1,16 @@
-FROM golang:1.18-alpine as build
+FROM alpine:3.17
+
 LABEL author="Yongjie Zhuang"
 LABEL descrption="Hammer - Thumbnail Generation Service"
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-RUN apk add --no-cache vips \
-    vips-dev \
-    tzdata \
-    gcc \
-    libc-dev \
-    glib-dev \
-    pkgconfig \
-    glib
-
-WORKDIR /go/src/build/
-
-# for golang env
-RUN go env -w GO111MODULE=on
-RUN go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
-
-# dependencies
-COPY go.mod .
-COPY go.sum .
-
-RUN go mod download
-
-# build executable
-COPY . .
-RUN go build -o main
-
-# ---------------------------------------------
-
-FROM alpine:3.17
-
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
-RUN apk --no-cache add vips \
-    vips-dev \
+RUN apk --no-cache add tzdata \
     ffmpeg
 
 WORKDIR /usr/src/
-COPY --from=build /go/src/build/main ./app_hammer
-COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
+
+# binary is pre-compiled
+COPY hammer_build ./app_hammer
 
 ENV TZ=Asia/Shanghai
 

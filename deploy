@@ -8,7 +8,7 @@ remote_config_path="~/services/${service}/config/"
 os="linux"
 arch="amd64"
 build="${service}_build"
-dockerfile="./Dockerfile_local"
+dockerfile="./Dockerfile"
 # ---------
 
 echo "Building Go app for platform $os/$arch to binary '$build'"
