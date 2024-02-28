@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/curtisnewbie/mini-fstore v0.1.6
-	github.com/curtisnewbie/miso v0.0.26
+	github.com/curtisnewbie/miso v0.0.27
 	github.com/disintegration/gift v1.2.1
 	golang.org/x/image v0.13.0
 // github.com/h2non/bimg v1.1.9
