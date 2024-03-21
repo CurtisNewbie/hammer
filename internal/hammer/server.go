@@ -144,10 +144,12 @@ func GenerateVideoThumbnail(rail miso.Rail, evt api.GenVideoThumbnailTriggerEven
 	defer os.Remove(genPath)
 
 	// build url to stream the original file from mini-fstore
-	baseUrl, err := miso.ConsulResolveRequestUrl("fstore", "/file/stream")
+	server, err := miso.SelectAnyServer(rail, "fstore")
 	if err != nil {
 		return "", err
 	}
+
+	baseUrl := server.BuildUrl("/file/stream")
 	streamUrl := baseUrl + "?key=" + url.QueryEscape(originFileToken)
 
 	if err := ExtractFirstFrame(rail, streamUrl, genPath); err != nil {
